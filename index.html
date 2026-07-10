@@ -255,21 +255,45 @@
             
             grid.innerHTML = '';
             
+            const columns = [[], [], [], []];
+            const columnHeights = [0, 0, 0, 0];
+            
             photos.forEach((photo, index) => {
-                const card = document.createElement('div');
-                card.className = 'masonry-item';
-                card.onclick = () => openLightbox(index);
-                card.innerHTML = `
-                    <div class="photo-card">
-                        <img src="${photo.src}" alt="${photo.name}" loading="lazy">
-                        <div class="photo-overlay">
-                            <span class="photo-date">${photo.date}</span>
-                            <span class="photo-likes">❤️ ${likes[photo.name] || 0}</span>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
+                let minCol = 0;
+                let minHeight = columnHeights[0];
+                for (let i = 1; i < 4; i++) {
+                    if (columnHeights[i] < minHeight) {
+                        minHeight = columnHeights[i];
+                        minCol = i;
+                    }
+                }
+                
+                columns[minCol].push({ photo, index });
+                columnHeights[minCol] += 1;
             });
+            
+            for (let col = 0; col < 4; col++) {
+                const columnDiv = document.createElement('div');
+                columnDiv.className = 'masonry-column';
+                
+                columns[col].forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'masonry-item';
+                    card.onclick = () => openLightbox(item.index);
+                    card.innerHTML = `
+                        <div class="photo-card">
+                            <img src="${item.photo.src}" alt="${item.photo.name}" loading="lazy">
+                            <div class="photo-overlay">
+                                <span class="photo-date">${item.photo.date}</span>
+                                <span class="photo-likes">❤️ ${likes[item.photo.name] || 0}</span>
+                            </div>
+                        </div>
+                    `;
+                    columnDiv.appendChild(card);
+                });
+                
+                grid.appendChild(columnDiv);
+            }
         }
 
         function renderCarousel() {

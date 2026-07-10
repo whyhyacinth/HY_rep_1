@@ -269,7 +269,7 @@ main.shifted {
 .carousel {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 3 / 1;
+    aspect-ratio: 5 / 2;
 }
 
 .carousel-track {
@@ -377,14 +377,23 @@ main.shifted {
 }
 
 .masonry-grid {
-    column-count: 4;
-    column-gap: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.masonry-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .masonry-item {
-    break-inside: avoid;
-    margin-bottom: 16px;
     cursor: pointer;
+    border-radius: var(--radius);
+    overflow: hidden;
+    width: 100%;
 }
 
 .photo-card {
@@ -393,15 +402,17 @@ main.shifted {
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
 }
 
 .photo-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.25);
 }
 
 .photo-card img {
     width: 100%;
+    height: auto;
     display: block;
 }
 
@@ -986,13 +997,17 @@ main.shifted {
 
 @media (max-width: 1200px) {
     .masonry-grid {
-        column-count: 3;
+        gap: 10px;
+    }
+    
+    .masonry-column {
+        gap: 10px;
     }
 }
 
 @media (max-width: 900px) {
-    .masonry-grid {
-        column-count: 2;
+    .masonry-grid .masonry-column:nth-child(4) {
+        display: none;
     }
     
     .stats-grid {
@@ -1036,13 +1051,16 @@ main.shifted {
         text-align: center;
     }
     
-    .masonry-grid {
-        column-count: 2;
-        column-gap: 12px;
+    .masonry-grid .masonry-column:nth-child(3) {
+        display: none;
     }
     
-    .masonry-item {
-        margin-bottom: 12px;
+    .masonry-grid {
+        gap: 10px;
+    }
+    
+    .masonry-column {
+        gap: 10px;
     }
     
     .carousel {
@@ -1061,7 +1079,7 @@ main.shifted {
 }
 
 @media (max-width: 480px) {
-    .masonry-grid {
-        column-count: 1;
+    .masonry-grid .masonry-column:nth-child(2) {
+        display: none;
     }
 }
