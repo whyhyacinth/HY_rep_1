@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书账号 📕</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🐕 Rango</div>
+            <ul class="nav-links">
+                <li><a href="index.html">照片墙</a></li>
+                <li><a href="profile.html">小狗信息</a></li>
+                <li><a href="xiaohongshu.html" class="active">小红书</a></li>
+                <li><a href="guestbook.html">留言板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="page-title">小红书账号 📕</h1>
+        <p class="page-subtitle">看看 Rango 的创作日常</p>
+        
+        <div class="xhs-header">
+            <div class="xhs-avatar" id="xhsAvatar">🐕</div>
+            <div class="xhs-info">
+                <h2 id="accountName">Rango的日常</h2>
+                <div class="xhs-id" id="accountId">@rango_daily</div>
+                <p class="xhs-bio" id="bio">分享Rango的日常可爱瞬间</p>
+                <a id="profileLink" href="#" target="_blank" style="display: inline-block; margin-top: 12px; padding: 8px 20px; background: linear-gradient(135deg, #FF69B4, #FFB6C1); color: white; text-decoration: none; border-radius: 20px; font-weight: 500;">👉 去小红书关注我</a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="followers">0</div>
+                <div class="stat-label">粉丝</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="following">0</div>
+                <div class="stat-label">关注</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="likes">0</div>
+                <div class="stat-label">获赞与收藏</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="notesCount">0</div>
+                <div class="stat-label">笔记</div>
+            </div>
+        </div>
+
+        <div class="style-section">
+            <h3>🎨 账号风格</h3>
+            <div class="style-tags" id="styleTags"></div>
+            <p style="margin-top: 16px; line-height: 1.8; color: var(--text-dark);" id="styleDesc"></p>
+        </div>
+
+        <h2 style="margin-bottom: 20px; color: var(--deep-pink);">📝 最近笔记</h2>
+        <div id="noteGrid" class="note-grid">
+            <div class="empty-state">
+                <div class="emoji">📕</div>
+                <p>把笔记图片放到 xiaohongshu 文件夹，再运行脚本吧！</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function formatNumber(num) {
+            if (num >= 10000) {
+                return (num / 10000).toFixed(1) + 'w';
+            }
+            return num.toLocaleString();
+        }
+
+        async function loadXiaohongshu() {
+            try {
+                const response = await fetch('data/info.json');
+                const data = await response.json();
+                const xhs = data.xiaohongshu;
+                
+                document.getElementById('xhsAvatar').textContent = xhs.avatar || '🐕';
+                document.getElementById('accountName').textContent = xhs.accountName || '';
+                document.getElementById('accountId').textContent = xhs.accountId || '';
+                document.getElementById('bio').textContent = xhs.bio || '';
+                document.getElementById('profileLink').href = xhs.profileUrl || '#';
+                
+                document.getElementById('followers').textContent = formatNumber(xhs.followers || 0);
+                document.getElementById('following').textContent = formatNumber(xhs.following || 0);
+                document.getElementById('likes').textContent = formatNumber(xhs.likes || 0);
+                document.getElementById('notesCount').textContent = formatNumber(xhs.notesCount || 0);
+                
+                if (xhs.styleTags && xhs.styleTags.length) {
+                    const tagsContainer = document.getElementById('styleTags');
+                    xhs.styleTags.forEach(tag => {
+                        const tagEl = document.createElement('span');
+                        tagEl.className = 'style-tag';
+                        tagEl.textContent = tag;
+                        tagsContainer.appendChild(tagEl);
+                    });
+                }
+                
+                document.getElementById('styleDesc').textContent = xhs.styleDesc || '';
+            } catch (error) {
+                console.log('加载小红书信息失败', error);
+            }
+
+            try {
+                const notesResponse = await fetch('data/notes.json');
+                const notes = await notesResponse.json();
+                const grid = document.getElementById('noteGrid');
+                
+                if (notes.length === 0) return;
+                
+                grid.innerHTML = '';
+                
+                notes.forEach(note => {
+                    const card = document.createElement('div');
+                    card.className = 'note-card';
+                    card.innerHTML = `
+                        <img src="${note.src}" alt="${note.title}" loading="lazy">
+                        <div class="note-content">
+                            <div class="note-title">${note.title}</div>
+                            <div class="note-stats">
+                                <span>❤️ ${note.likes || 0}</span>
+                                <span>💬 ${note.comments || 0}</span>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.log('还没有笔记数据~');
+            }
+        }
+        
+        loadXiaohongshu();
+    </script>
+</body>
+</html>

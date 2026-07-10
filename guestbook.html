@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言板 💬</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🐕 Rango</div>
+            <ul class="nav-links">
+                <li><a href="index.html">照片墙</a></li>
+                <li><a href="profile.html">小狗信息</a></li>
+                <li><a href="xiaohongshu.html">小红书</a></li>
+                <li><a href="guestbook.html" class="active">留言板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="page-title">留言板 💬</h1>
+        <p class="page-subtitle">留下你对 Rango 的祝福吧~</p>
+        
+        <div class="guestbook-container">
+            <div class="guestbook-form">
+                <h3>✍️ 写留言</h3>
+                <form id="guestbookForm">
+                    <div class="form-group">
+                        <label>你的名字</label>
+                        <input type="text" id="name" placeholder="请输入名字" required>
+                    </div>
+                    <div class="form-group">
+                        <label>留言内容</label>
+                        <textarea id="message" placeholder="写下你想说的话..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">📝 发表留言</button>
+                </form>
+            </div>
+            
+            <div class="guestbook-list">
+                <h3>📬 所有留言 (<span id="messageCount">0</span>)</h3>
+                <div id="messages" class="messages">
+                    <div class="empty-state">
+                        <div class="emoji">💬</div>
+                        <p>还没有留言哦~ 快来抢沙发！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadMessages() {
+            try {
+                const response = await fetch('data/messages.json');
+                const messages = await response.json();
+                renderMessages(messages);
+            } catch (error) {
+                renderMessages([]);
+            }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('messages');
+            const count = document.getElementById('messageCount');
+            
+            count.textContent = messages.length;
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">💬</div>
+                        <p>还没有留言哦~ 快来抢沙发！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const card = document.createElement('div');
+                card.className = 'message-card';
+                card.innerHTML = `
+                    <div class="message-header">
+                        <span class="message-name">${msg.name}</span>
+                        <span class="message-time">${msg.time}</span>
+                    </div>
+                    <div class="message-content">${msg.content}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('guestbookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const content = document.getElementById('message').value;
+            
+            const newMessage = {
+                name: name,
+                content: content,
+                time: new Date().toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            };
+            
+            let messages = [];
+            try {
+                const response = await fetch('data/messages.json');
+                messages = await response.json();
+            } catch {
+                messages = [];
+            }
+            
+            messages.unshift(newMessage);
+            
+            try {
+                await fetch('data/messages.json', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(messages, null, 2)
+                });
+            } catch {
+                console.log('留言已保存到本地');
+                localStorage.setItem('guestbook_messages', JSON.stringify(messages));
+            }
+            
+            document.getElementById('name').value = '';
+            document.getElementById('message').value = '';
+            
+            renderMessages(messages);
+        });
+
+        loadMessages();
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "dog": {
+    "name": "Rango",
+    "avatar": "🐕",
+    "tagline": "一只超级可爱的豆柴宝宝",
+    "breed": "豆柴",
+    "age": "1岁8个月",
+    "gender": "妹妹",
+    "weight": "7公斤",
+    "birthday": "2024年11月3日",
+    "hometown": "北京",
+    "personality": "活泼好动、粘人撒娇、爱吃爱睡、偶尔犯懒",
+    "likes": ["吃零食", "散步", "玩球", "睡觉", "追蝴蝶"],
+    "dislikes": ["洗澡", "打雷", "剪指甲"],
+    "bio": "大家好！我是Rango，一只来自北京的豆柴妹妹。我出生于2024年11月3日，虽然年纪不大，但我已经是家里的小明星啦！我最喜欢吃零食和睡觉，没事的时候喜欢追着蝴蝶跑。我还有一个特点就是特别粘人，最喜欢跟主人撒娇。希望大家喜欢我的日常记录！"
+  },
+  "xiaohongshu": {
+    "accountName": "Rango王懒狗",
+    "accountId": "@rango_wanglangou",
+    "avatar": "🐕",
+    "bio": "分享Rango的日常可爱瞬间 | 小狗成长记录 | 宠物好物分享",
+    "followers": 1234,
+    "following": 56,
+    "likes": 12580,
+    "notesCount": 89,
+    "profileUrl": "https://www.xiaohongshu.com/user/profile/67964f3a000000000d0085e2",
+    "styleTags": ["日常vlog", "可爱治愈", "宠物穿搭", "好物分享", "成长记录"],
+    "styleDesc": "账号风格以温馨治愈的日常记录为主，用真实的镜头记录小狗的成长点滴。内容轻松有趣，画面明亮温暖，适合宠物用品、食品、生活方式类品牌合作。"
+  }
+}

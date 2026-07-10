@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rango 的日常 🐕</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🐕 Rango</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">照片墙</a></li>
+                <li><a href="profile.html">小狗信息</a></li>
+                <li><a href="xiaohongshu.html">小红书</a></li>
+                <li><a href="guestbook.html">留言板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="page-title">Rango 的日常照片墙 ✨</h1>
+        <p class="page-subtitle">记录每一个可爱的瞬间</p>
+        
+        <div id="monthFilter" class="month-filter">
+            <button class="filter-btn active" data-filter="all">📅 全部</button>
+        </div>
+        
+        <div id="photoGrid" class="photo-grid">
+            <div class="empty-state">
+                <div class="emoji">📸</div>
+                <p>还没有照片哦~ 运行 update.py 脚本添加照片吧！</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allPhotos = [];
+
+        async function loadPhotos() {
+            try {
+                const response = await fetch('data/photos.json');
+                allPhotos = await response.json();
+                const grid = document.getElementById('photoGrid');
+                
+                if (allPhotos.length === 0) {
+                    return;
+                }
+                
+                renderMonthFilter();
+                renderPhotos(allPhotos);
+            } catch (error) {
+                console.log('还没有照片数据，先运行脚本吧~');
+            }
+        }
+
+        function renderMonthFilter() {
+            const months = new Set();
+            allPhotos.forEach(photo => {
+                const date = photo.date;
+                if (date) {
+                    months.add(date.substring(0, 7));
+                }
+            });
+            
+            const sortedMonths = Array.from(months).sort((a, b) => b.localeCompare(a));
+            const filterContainer = document.getElementById('monthFilter');
+            
+            sortedMonths.forEach(month => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = month;
+                btn.dataset.filter = month;
+                btn.onclick = () => filterByMonth(month);
+                filterContainer.appendChild(btn);
+            });
+        }
+
+        function filterByMonth(month) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (month === 'all') {
+                renderPhotos(allPhotos);
+            } else {
+                const filtered = allPhotos.filter(photo => photo.date.startsWith(month));
+                renderPhotos(filtered);
+            }
+        }
+
+        function renderPhotos(photos) {
+            const grid = document.getElementById('photoGrid');
+            
+            if (photos.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">📸</div>
+                        <p>这个月还没有照片哦~</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            photos.forEach(photo => {
+                const card = document.createElement('div');
+                card.className = 'photo-card';
+                card.innerHTML = `
+                    <img src="${photo.src}" alt="${photo.name}" loading="lazy">
+                    <div class="photo-info">
+                        <div class="photo-date">${photo.date}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        loadPhotos();
+    </script>
+</body>
+</html>

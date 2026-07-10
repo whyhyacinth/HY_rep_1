@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 Rango 🐕</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🐕 Rango</div>
+            <ul class="nav-links">
+                <li><a href="index.html">照片墙</a></li>
+                <li><a href="profile.html" class="active">小狗信息</a></li>
+                <li><a href="xiaohongshu.html">小红书</a></li>
+                <li><a href="guestbook.html">留言板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <h1 class="page-title">关于我 🐾</h1>
+        <p class="page-subtitle">认识一下可爱的 Rango</p>
+        
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar" id="dogAvatar">🐕</div>
+                <div>
+                    <h2 class="profile-name" id="dogName">Rango</h2>
+                    <p class="profile-tagline" id="dogTagline">一只可爱的小狗狗</p>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>📋 基本信息</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">品种</div>
+                        <div class="value" id="breed">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">年龄</div>
+                        <div class="value" id="age">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">性别</div>
+                        <div class="value" id="gender">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">体重</div>
+                        <div class="value" id="weight">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">生日</div>
+                        <div class="value" id="birthday">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">所在地</div>
+                        <div class="value" id="hometown">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>💝 性格特点</h3>
+                <div class="style-tags" id="personalityTags"></div>
+            </div>
+
+            <div class="info-section">
+                <h3>🥰 喜欢的事情</h3>
+                <div class="style-tags" id="likesTags"></div>
+            </div>
+
+            <div class="info-section">
+                <h3>😣 不喜欢的事情</h3>
+                <div class="style-tags" id="dislikesTags"></div>
+            </div>
+
+            <div class="info-section">
+                <h3>📝 自我介绍</h3>
+                <p style="line-height: 1.8; color: var(--text-dark);" id="bio">-</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadProfile() {
+            try {
+                const response = await fetch('data/info.json');
+                const data = await response.json();
+                const dog = data.dog;
+                
+                document.getElementById('dogAvatar').textContent = dog.avatar || '🐕';
+                document.getElementById('dogName').textContent = dog.name || 'Rango';
+                document.getElementById('dogTagline').textContent = dog.tagline || '';
+                document.getElementById('breed').textContent = dog.breed || '-';
+                document.getElementById('age').textContent = dog.age || '-';
+                document.getElementById('gender').textContent = dog.gender || '-';
+                document.getElementById('weight').textContent = dog.weight || '-';
+                document.getElementById('birthday').textContent = dog.birthday || '-';
+                document.getElementById('hometown').textContent = dog.hometown || '-';
+                document.getElementById('bio').textContent = dog.bio || '-';
+                
+                if (dog.personality) {
+                    const pTags = document.getElementById('personalityTags');
+                    dog.personality.split(/[,，、]/).forEach(trait => {
+                        const tag = document.createElement('span');
+                        tag.className = 'style-tag';
+                        tag.textContent = trait.trim();
+                        pTags.appendChild(tag);
+                    });
+                }
+                
+                if (dog.likes && dog.likes.length) {
+                    const lTags = document.getElementById('likesTags');
+                    dog.likes.forEach(like => {
+                        const tag = document.createElement('span');
+                        tag.className = 'style-tag';
+                        tag.textContent = like;
+                        lTags.appendChild(tag);
+                    });
+                }
+                
+                if (dog.dislikes && dog.dislikes.length) {
+                    const dTags = document.getElementById('dislikesTags');
+                    dog.dislikes.forEach(dislike => {
+                        const tag = document.createElement('span');
+                        tag.className = 'style-tag';
+                        tag.style.background = '#f0f0f0';
+                        tag.style.color = '#999';
+                        tag.textContent = dislike;
+                        dTags.appendChild(tag);
+                    });
+                }
+            } catch (error) {
+                console.log('加载信息失败', error);
+            }
+        }
+        
+        loadProfile();
+    </script>
+</body>
+</html>
