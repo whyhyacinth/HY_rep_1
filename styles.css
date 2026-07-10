@@ -249,7 +249,7 @@ nav {
 }
 
 main {
-    max-width: 1400px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 30px 24px;
     transition: margin-left 0.3s ease;
@@ -269,7 +269,7 @@ main.shifted {
 .carousel {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 5 / 2;
+    aspect-ratio: 10 / 3;
 }
 
 .carousel-track {
@@ -378,7 +378,7 @@ main.shifted {
 
 .masonry-grid {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: flex-start;
 }
 
@@ -386,7 +386,7 @@ main.shifted {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .masonry-item {
@@ -995,17 +995,7 @@ main.shifted {
     font-size: 15px;
 }
 
-@media (max-width: 1200px) {
-    .masonry-grid {
-        gap: 10px;
-    }
-    
-    .masonry-column {
-        gap: 10px;
-    }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 700px) {
     .masonry-grid .masonry-column:nth-child(4) {
         display: none;
     }
@@ -1015,7 +1005,7 @@ main.shifted {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 550px) {
     .nav-links {
         gap: 12px;
     }
@@ -1056,11 +1046,11 @@ main.shifted {
     }
     
     .masonry-grid {
-        gap: 10px;
+        gap: 8px;
     }
     
     .masonry-column {
-        gap: 10px;
+        gap: 8px;
     }
     
     .carousel {
@@ -1078,7 +1068,7 @@ main.shifted {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
     .masonry-grid .masonry-column:nth-child(2) {
         display: none;
     }
