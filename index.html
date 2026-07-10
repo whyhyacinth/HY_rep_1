@@ -9,6 +9,7 @@
 <body>
     <nav>
         <div class="nav-container">
+            <button id="toggleSidebar" class="sidebar-toggle">☰</button>
             <div class="logo">🐕 Rango</div>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">照片墙</a></li>
@@ -16,18 +17,90 @@
                 <li><a href="xiaohongshu.html">小红书</a></li>
                 <li><a href="guestbook.html">留言板</a></li>
             </ul>
+            <button id="toggleStats" class="stats-toggle">📊</button>
         </div>
     </nav>
 
-    <main>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>🏷️ 分类</h3>
+        </div>
+        <ul class="category-list">
+            <li class="category-item active" data-category="all">
+                <span class="category-icon">📸</span>
+                <span class="category-name">全部照片</span>
+            </li>
+            <li class="category-item" data-category="daily">
+                <span class="category-icon">🏠</span>
+                <span class="category-name">日常</span>
+            </li>
+            <li class="category-item" data-category="walk">
+                <span class="category-icon">🚶</span>
+                <span class="category-name">散步</span>
+            </li>
+            <li class="category-item" data-category="sleep">
+                <span class="category-icon">😴</span>
+                <span class="category-name">睡觉</span>
+            </li>
+            <li class="category-item" data-category="play">
+                <span class="category-icon">🎾</span>
+                <span class="category-name">玩耍</span>
+            </li>
+            <li class="category-item" data-category="eat">
+                <span class="category-icon">🍖</span>
+                <span class="category-name">吃东西</span>
+            </li>
+            <li class="category-item" data-category="cute">
+                <span class="category-icon">🥰</span>
+                <span class="category-name">可爱瞬间</span>
+            </li>
+        </ul>
+        <div class="sidebar-month">
+            <h4>📅 按月份</h4>
+            <ul id="monthList" class="month-list"></ul>
+        </div>
+    </aside>
+
+    <div id="statsPanel" class="stats-panel">
+        <div class="stats-panel-header">
+            <h3>📊 数据统计</h3>
+            <button id="closeStats" class="close-btn">×</button>
+        </div>
+        <div class="stats-grid-small">
+            <div class="stat-item">
+                <div class="stat-num" id="totalPhotos">0</div>
+                <div class="stat-label">总照片数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" id="totalLikes">0</div>
+                <div class="stat-label">总点赞</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" id="monthPhotos">0</div>
+                <div class="stat-label">本月新增</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" id="totalMonths">0</div>
+                <div class="stat-label">记录月数</div>
+            </div>
+        </div>
+    </div>
+
+    <main id="mainContent">
+        <div class="carousel-container">
+            <div class="carousel" id="carousel">
+                <div class="carousel-track" id="carouselTrack"></div>
+                <button class="carousel-btn prev" id="prevBtn">‹</button>
+                <button class="carousel-btn next" id="nextBtn">›</button>
+                <div class="carousel-dots" id="carouselDots"></div>
+                <div class="carousel-play" id="playPauseBtn">⏸️</div>
+            </div>
+        </div>
+
         <h1 class="page-title">Rango 的日常照片墙 ✨</h1>
         <p class="page-subtitle">记录每一个可爱的瞬间</p>
         
-        <div id="monthFilter" class="month-filter">
-            <button class="filter-btn active" data-filter="all">📅 全部</button>
-        </div>
-        
-        <div id="photoGrid" class="photo-grid">
+        <div id="photoGrid" class="masonry-grid">
             <div class="empty-state">
                 <div class="emoji">📸</div>
                 <p>还没有照片哦~ 运行 update.py 脚本添加照片吧！</p>
@@ -35,58 +108,136 @@
         </div>
     </main>
 
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close" id="lightboxClose">×</span>
+        <span class="lightbox-prev" id="lightboxPrev">‹</span>
+        <span class="lightbox-next" id="lightboxNext">›</span>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="">
+            <div class="lightbox-info">
+                <span id="lightboxDate"></span>
+                <div class="lightbox-actions">
+                    <button class="action-btn like-btn" id="likeBtn">❤️ <span id="likeCount">0</span></button>
+                    <button class="action-btn share-btn" id="shareBtn">📤 分享</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareModal" class="share-modal">
+        <div class="share-content">
+            <h3>📤 分享照片</h3>
+            <div class="share-options">
+                <button class="share-option" data-type="copy">
+                    <span class="share-icon">🔗</span>
+                    <span>复制链接</span>
+                </button>
+                <button class="share-option" data-type="download">
+                    <span class="share-icon">💾</span>
+                    <span>保存图片</span>
+                </button>
+            </div>
+            <button class="close-share" id="closeShare">关闭</button>
+        </div>
+    </div>
+
     <script>
         let allPhotos = [];
+        let currentPhotos = [];
+        let currentIndex = 0;
+        let carouselIndex = 0;
+        let carouselTimer = null;
+        let isPlaying = true;
+        let likes = {};
+
+        function loadLikes() {
+            try {
+                const saved = localStorage.getItem('photo_likes');
+                if (saved) {
+                    likes = JSON.parse(saved);
+                }
+            } catch (e) {
+                likes = {};
+            }
+        }
+
+        function saveLikes() {
+            localStorage.setItem('photo_likes', JSON.stringify(likes));
+        }
 
         async function loadPhotos() {
             try {
                 const response = await fetch('data/photos.json');
                 allPhotos = await response.json();
-                const grid = document.getElementById('photoGrid');
+                
+                allPhotos.forEach(photo => {
+                    if (!likes[photo.name]) {
+                        likes[photo.name] = photo.likes || 0;
+                    }
+                });
                 
                 if (allPhotos.length === 0) {
                     return;
                 }
                 
-                renderMonthFilter();
-                renderPhotos(allPhotos);
+                currentPhotos = [...allPhotos];
+                renderMonthList();
+                renderCarousel();
+                renderPhotos(currentPhotos);
+                updateStats();
+                startCarousel();
             } catch (error) {
                 console.log('还没有照片数据，先运行脚本吧~');
             }
         }
 
-        function renderMonthFilter() {
+        function renderMonthList() {
             const months = new Set();
             allPhotos.forEach(photo => {
-                const date = photo.date;
-                if (date) {
-                    months.add(date.substring(0, 7));
+                if (photo.date) {
+                    months.add(photo.date.substring(0, 7));
                 }
             });
             
             const sortedMonths = Array.from(months).sort((a, b) => b.localeCompare(a));
-            const filterContainer = document.getElementById('monthFilter');
+            const monthList = document.getElementById('monthList');
+            monthList.innerHTML = '';
             
             sortedMonths.forEach(month => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn';
-                btn.textContent = month;
-                btn.dataset.filter = month;
-                btn.onclick = () => filterByMonth(month);
-                filterContainer.appendChild(btn);
+                const count = allPhotos.filter(p => p.date.startsWith(month)).length;
+                const li = document.createElement('li');
+                li.className = 'month-item';
+                li.textContent = `${month} (${count})`;
+                li.onclick = () => filterByMonth(month);
+                monthList.appendChild(li);
             });
         }
 
-        function filterByMonth(month) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        function filterByCategory(category) {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.category === category) {
+                    item.classList.add('active');
+                }
+            });
             
-            if (month === 'all') {
-                renderPhotos(allPhotos);
+            if (category === 'all') {
+                currentPhotos = [...allPhotos];
             } else {
-                const filtered = allPhotos.filter(photo => photo.date.startsWith(month));
-                renderPhotos(filtered);
+                currentPhotos = allPhotos.filter(photo => {
+                    if (photo.category) {
+                        return photo.category === category;
+                    }
+                    return true;
+                });
             }
+            
+            renderPhotos(currentPhotos);
+        }
+
+        function filterByMonth(month) {
+            currentPhotos = allPhotos.filter(photo => photo.date.startsWith(month));
+            renderPhotos(currentPhotos);
         }
 
         function renderPhotos(photos) {
@@ -96,7 +247,7 @@
                 grid.innerHTML = `
                     <div class="empty-state">
                         <div class="emoji">📸</div>
-                        <p>这个月还没有照片哦~</p>
+                        <p>还没有照片哦~</p>
                     </div>
                 `;
                 return;
@@ -104,20 +255,227 @@
             
             grid.innerHTML = '';
             
-            photos.forEach(photo => {
+            photos.forEach((photo, index) => {
                 const card = document.createElement('div');
-                card.className = 'photo-card';
+                card.className = 'masonry-item';
+                card.onclick = () => openLightbox(index);
                 card.innerHTML = `
-                    <img src="${photo.src}" alt="${photo.name}" loading="lazy">
-                    <div class="photo-info">
-                        <div class="photo-date">${photo.date}</div>
+                    <div class="photo-card">
+                        <img src="${photo.src}" alt="${photo.name}" loading="lazy">
+                        <div class="photo-overlay">
+                            <span class="photo-date">${photo.date}</span>
+                            <span class="photo-likes">❤️ ${likes[photo.name] || 0}</span>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
-        
-        loadPhotos();
+
+        function renderCarousel() {
+            const shuffled = [...allPhotos].sort(() => Math.random() - 0.5).slice(0, 5);
+            const track = document.getElementById('carouselTrack');
+            const dots = document.getElementById('carouselDots');
+            
+            track.innerHTML = '';
+            dots.innerHTML = '';
+            
+            shuffled.forEach((photo, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `<img src="${photo.src}" alt="">`;
+                track.appendChild(slide);
+                
+                const dot = document.createElement('span');
+                dot.className = 'dot' + (index === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(index);
+                dots.appendChild(dot);
+            });
+        }
+
+        function goToSlide(index) {
+            const track = document.getElementById('carouselTrack');
+            const slides = track.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.dot');
+            
+            if (index >= slides.length) index = 0;
+            if (index < 0) index = slides.length - 1;
+            
+            carouselIndex = index;
+            track.style.transform = `translateX(-${index * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextSlide() {
+            goToSlide(carouselIndex + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(carouselIndex - 1);
+        }
+
+        function startCarousel() {
+            if (carouselTimer) clearInterval(carouselTimer);
+            carouselTimer = setInterval(nextSlide, 4000);
+        }
+
+        function toggleCarousel() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            btn.textContent = isPlaying ? '⏸️' : '▶️';
+            
+            if (isPlaying) {
+                startCarousel();
+            } else {
+                clearInterval(carouselTimer);
+            }
+        }
+
+        function openLightbox(index) {
+            currentIndex = index;
+            const photo = currentPhotos[index];
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImg');
+            const date = document.getElementById('lightboxDate');
+            const likeCount = document.getElementById('likeCount');
+            
+            img.src = photo.src;
+            date.textContent = photo.date;
+            likeCount.textContent = likes[photo.name] || 0;
+            
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function prevPhoto() {
+            if (currentIndex > 0) {
+                openLightbox(currentIndex - 1);
+            }
+        }
+
+        function nextPhoto() {
+            if (currentIndex < currentPhotos.length - 1) {
+                openLightbox(currentIndex + 1);
+            }
+        }
+
+        function toggleLike() {
+            const photo = currentPhotos[currentIndex];
+            if (!photo) return;
+            
+            if (!likes[photo.name]) {
+                likes[photo.name] = 0;
+            }
+            likes[photo.name]++;
+            saveLikes();
+            
+            document.getElementById('likeCount').textContent = likes[photo.name];
+            updateStats();
+            renderPhotos(currentPhotos);
+        }
+
+        function updateStats() {
+            const totalPhotos = allPhotos.length;
+            const totalLikes = Object.values(likes).reduce((a, b) => a + b, 0);
+            
+            const now = new Date();
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const monthPhotos = allPhotos.filter(p => p.date.startsWith(currentMonth)).length;
+            
+            const months = new Set(allPhotos.map(p => p.date.substring(0, 7)));
+            
+            document.getElementById('totalPhotos').textContent = totalPhotos;
+            document.getElementById('totalLikes').textContent = totalLikes;
+            document.getElementById('monthPhotos').textContent = monthPhotos;
+            document.getElementById('totalMonths').textContent = months.size;
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mainContent').classList.toggle('shifted');
+        }
+
+        function toggleStats() {
+            document.getElementById('statsPanel').classList.toggle('open');
+        }
+
+        function openShareModal() {
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function handleShare(type) {
+            const photo = currentPhotos[currentIndex];
+            if (!photo) return;
+            
+            if (type === 'copy') {
+                const url = window.location.href + '#' + photo.name;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('链接已复制到剪贴板！');
+                });
+            } else if (type === 'download') {
+                const a = document.createElement('a');
+                a.href = photo.src;
+                a.download = photo.name;
+                a.click();
+            }
+            
+            closeShareModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLikes();
+            loadPhotos();
+            
+            document.getElementById('toggleSidebar').onclick = toggleSidebar;
+            document.getElementById('toggleStats').onclick = toggleStats;
+            document.getElementById('closeStats').onclick = toggleStats;
+            
+            document.getElementById('prevBtn').onclick = prevSlide;
+            document.getElementById('nextBtn').onclick = nextSlide;
+            document.getElementById('playPauseBtn').onclick = toggleCarousel;
+            
+            document.getElementById('lightboxClose').onclick = closeLightbox;
+            document.getElementById('lightboxPrev').onclick = prevPhoto;
+            document.getElementById('lightboxNext').onclick = nextPhoto;
+            document.getElementById('likeBtn').onclick = toggleLike;
+            document.getElementById('shareBtn').onclick = openShareModal;
+            
+            document.getElementById('closeShare').onclick = closeShareModal;
+            document.querySelectorAll('.share-option').forEach(btn => {
+                btn.onclick = () => handleShare(btn.dataset.type);
+            });
+            
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.onclick = () => filterByCategory(item.dataset.category);
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                const lightbox = document.getElementById('lightbox');
+                if (lightbox.style.display === 'flex') {
+                    if (e.key === 'Escape') closeLightbox();
+                    if (e.key === 'ArrowLeft') prevPhoto();
+                    if (e.key === 'ArrowRight') nextPhoto();
+                }
+            });
+            
+            document.getElementById('lightbox').onclick = (e) => {
+                if (e.target.id === 'lightbox') {
+                    closeLightbox();
+                }
+            };
+        });
     </script>
 </body>
 </html>
