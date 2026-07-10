@@ -93,7 +93,9 @@
                 <button class="carousel-btn prev" id="prevBtn">‹</button>
                 <button class="carousel-btn next" id="nextBtn">›</button>
                 <div class="carousel-dots" id="carouselDots"></div>
-                <div class="carousel-play" id="playPauseBtn">⏸️</div>
+                <div class="carousel-play" id="playPauseBtn">
+                    <span class="play-icon"></span>
+                </div>
             </div>
         </div>
 
@@ -349,11 +351,12 @@
         function toggleCarousel() {
             isPlaying = !isPlaying;
             const btn = document.getElementById('playPauseBtn');
-            btn.textContent = isPlaying ? '⏸️' : '▶️';
             
             if (isPlaying) {
+                btn.classList.remove('playing');
                 startCarousel();
             } else {
+                btn.classList.add('playing');
                 clearInterval(carouselTimer);
             }
         }
