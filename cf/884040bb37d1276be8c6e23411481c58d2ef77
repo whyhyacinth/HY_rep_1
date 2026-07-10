@@ -1,0 +1,66 @@
+.gitignore
+  s_26d346ccc1ba47::t_38d09e71b34690 1-4 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a50bdfb15f1ffa4ca653f85","tool_type":"agent","tool_id":"Write","line_ranges":[{"Range":[1,4]}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "cf884040bb37d1276be8c6e23411481c58d2ef77",
+  "prompts": {},
+  "sessions": {
+    "s_26d346ccc1ba47": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "6a50abdf15f1ffa4ca653e15",
+        "model": "Doubao_1_6__dev"
+      },
+      "human_author": "whyhyacinth <whyhyacinth@users.noreply.github.com>"
+    }
+  },
+  "attestation_metadata": {
+    ".gitignore": [
+      {
+        "hash": "s_26d346ccc1ba47::t_38d09e71b34690",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              4
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a50bdfb15f1ffa4ca653f85",
+            "tool_type": "agent",
+            "tool_id": "Write",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  4
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_26d346ccc1ba47": {
+      "tool": "trae",
+      "conversation_id": "6a50abdf15f1ffa4ca653e15",
+      "session_id": "6a50abdf15f1ffa4ca653e15",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_26d346ccc1ba47::t_38d09e71b34690": {
+      "tool": "trae",
+      "conversation_id": "6a50abdf15f1ffa4ca653e15",
+      "session_id": "6a50abdf15f1ffa4ca653e15",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
