@@ -53,13 +53,27 @@
 
     <script>
         async function loadMessages() {
+            let messages = [];
+            
             try {
-                const response = await fetch('data/messages.json');
-                const messages = await response.json();
-                renderMessages(messages);
-            } catch (error) {
-                renderMessages([]);
+                const saved = localStorage.getItem('guestbook_messages');
+                if (saved) {
+                    messages = JSON.parse(saved);
+                }
+            } catch (e) {
+                messages = [];
             }
+            
+            if (messages.length === 0) {
+                try {
+                    const response = await fetch('data/messages.json');
+                    messages = await response.json();
+                } catch (error) {
+                    messages = [];
+                }
+            }
+            
+            renderMessages(messages);
         }
 
         function renderMessages(messages) {
@@ -122,6 +136,8 @@
             
             messages.unshift(newMessage);
             
+            localStorage.setItem('guestbook_messages', JSON.stringify(messages));
+            
             try {
                 await fetch('data/messages.json', {
                     method: 'PUT',
@@ -130,7 +146,6 @@
                 });
             } catch {
                 console.log('留言已保存到本地');
-                localStorage.setItem('guestbook_messages', JSON.stringify(messages));
             }
             
             document.getElementById('name').value = '';
